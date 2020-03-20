@@ -113,9 +113,9 @@ def compute_event_image(events, start, stop, imsize):
     return torch.Tensor(res.reshape(shape))
 
 class Model(nn.Module):
-    def __init__(self, device):
+    def __init__(self):
         super(Model, self).__init__()
-        self.device = device
+        #self.device = device
         in_size = 4
         enc_depth = 4
         tr_depth = 2

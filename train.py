@@ -36,7 +36,8 @@ pred_images = torch.Tensor(pred_images)
 next_images = torch.Tensor(next_images)
 
 device = torch.device('cuda:0')
-model = Model(device)
+model = Model()
+model.to(device)
 imsize = 256, 256
 
 model.train()
