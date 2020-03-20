@@ -16,7 +16,7 @@ next_images = []
 for i in tqdm(range(32)):
     pred_images.append([np.array(Image.open(path/f"images/{i}.png"))])
     next_images.append([np.array(Image.open(path/f"images/{i+1}.png"))])
-    events = h5py.File(path/f"event_images/{i}to{i+1}.hdf5", "r")
+    events = h5py.File(path/f"events/{i}to{i+1}.hdf5", "r")
     x = np.array(events['x'])
     y = np.array(events['y'])
     t = np.array(events['t'])
