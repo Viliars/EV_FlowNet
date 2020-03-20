@@ -7,7 +7,7 @@ import h5py
 from pathlib import Path
 from net import Model
 
-path = Path("../data/")
+path = Path("./test/")
 
 event_images = []
 pred_images = []
@@ -46,7 +46,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-5)
 
 batch_size = 8
 
-for epoch in range(10000):
+for epoch in range(1, 10000):
     order = np.random.permutation(32)
 
     for start_index in range(0, 32, batch_size):
@@ -64,5 +64,8 @@ for epoch in range(10000):
         loss_value.backward()
 
         optimizer.step()
+
+    if (epoch % 1000 == 0):
+        torch.save(model.state_dict(), f"models/{epoch}.pth")
 
     print(f"epoch {epoch}, loss = {loss_value.item()}")
