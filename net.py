@@ -153,18 +153,18 @@ class Model(nn.Module):
     def _extend_size(self, imsize):
         return tuple(map(lambda x: ((x - 1) // 16 + 1) * 16, imsize))
 
-    def forward(self, events, start, stop, imsize, raw=True):
+    def forward(self, events):
+        #
+        # # compute extended image size
+        # outsize = [tuple(map(lambda x: x//2**i, imsize))
+        #         for i in range(len(self.enc))][::-1]
+        # # compute event_image
+        # if raw:
+        #     extended_size = self._extend_size(imsize)
+        #     xb = compute_event_image(events, start, stop, extended_size).to(self.device)
+        # else:
 
-        # compute extended image size
-        outsize = [tuple(map(lambda x: x//2**i, imsize))
-                for i in range(len(self.enc))][::-1]
-
-        # compute event_image
-        if raw:
-            extended_size = self._extend_size(imsize)
-            xb = compute_event_image(events, start, stop, extended_size).to(self.device)
-        else:
-            xb = events
+        xb = events
 
         y = []
         skip = [xb]
@@ -184,4 +184,4 @@ class Model(nn.Module):
             h = torch.cat((h, y[-1]), 1)
 
         # shrink image to original size
-        return self._get_result(y, outsize)
+        return y[3]
