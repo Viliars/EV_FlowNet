@@ -87,8 +87,7 @@ for i in tqdm(range(0, 1000, batch_size)):
         losses[key].append(loss.item())
 
     pred_images.cpu()
-    for key in event_images.keys():
-        event_images[key].cpu()
+    for key in result.keys():
         result[key].cpu()
 
 
