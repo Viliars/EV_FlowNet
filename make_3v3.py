@@ -22,33 +22,36 @@ class MVSEC(torch.utils.data.Dataset):
         pred_images = []
         next_images = []
 
-        pred_images.append([np.array(Image.open(self.path / f"images/{idx}.png"))])
-        next_images.append([np.array(Image.open(self.path / f"images/{idx + 1}.png"))])
+        for i in range(idx.start, idx.stop):
+            pred_images.append([np.array(Image.open(self.path / f"images/{i}.png"))])
+            next_images.append([np.array(Image.open(self.path / f"images/{i + 1}.png"))])
 
-        for key in events_array.keys():
-            events = h5py.File(self.path / f"event_images/{key}/{idx}to{idx + 1}.hdf5", "r")
-            x = np.array(events['x'])
-            y = np.array(events['y'])
-            t = np.array(events['t'])
-            p = np.array(events['p'])
-            events.close()
-            events_array[key].append([x, y, t, p])
+            for key in events_array.keys():
+                events = h5py.File(self.path / f"event_images/{key}/{i}to{i + 1}.hdf5")
+                x = np.array(events['x'])
+                y = np.array(events['y'])
+                t = np.array(events['t'])
+                p = np.array(events['p'])
+                events_array[key].append([x, y, t, p])
 
-            event_image = np.zeros((4, 256, 256))
-            for j in range(x.shape[0]):
-                if p[j] == 1:
-                    event_image[0, y[j], x[j]] += 1
-                    event_image[2, y[j], x[j]] = t[j]
-                if p[j] == -1:
-                    event_image[1, y[j], x[j]] += 1
-                    event_image[3, y[j], x[j]] = t[j]
+                event_image = np.zeros((4, 256, 256))
+                for j in range(x.shape[0]):
+                    if p[j] == 1:
+                        event_image[0, y[j], x[j]] += 1
+                        event_image[2, y[j], x[j]] = t[j]
+                    if p[j] == -1:
+                        event_image[1, y[j], x[j]] += 1
+                        event_image[3, y[j], x[j]] = t[j]
 
-            event_images[key].append(event_image)
+                event_images[key].append(event_image)
 
         for key in event_images.keys():
             event_images[key] = torch.Tensor(event_images[key])
 
         return torch.Tensor(pred_images), torch.Tensor(next_images), events_array, event_images
+
+    def __len__(self):
+        return 1000
 
     def __len__(self):
         return 1000
@@ -64,12 +67,12 @@ model.eval()
 
 mvsec = MVSEC(path)
 
-batch_size = 1
+batch_size = 10
 losses = {"15": [], "50": [], "80": [], "mvsec": []}
-for i in tqdm(range(1000)):
+for i in tqdm(range(0, 1000, batch_size)):
     result = {"15": [], "50": [], "80": [], "mvsec": []}
 
-    pred_images, next_images, events_array, event_images = mvsec[i]
+    pred_images, next_images, events_array, event_images = mvsec[i:i+batch_size]
 
     pred_images = pred_images.to(device)
     next_images = next_images.to(device)
@@ -80,19 +83,18 @@ for i in tqdm(range(1000)):
     for key in losses.keys():
         flow = model.forward(event_images[key])
         loss = photometric_loss(pred_images, next_images, flow) + 0.5 * smoothness_loss(flow)
-        result[key] = flow[0]
+        result[key] = flow
         losses[key].append(loss.item())
 
-    Image.fromarray(np.vstack([vis_all(result['15'].cpu(), events_array['15'][0], pred_images[0][0].cpu()),
-                               vis_all(result['50'].cpu(), events_array['50'][0], pred_images[0][0].cpu()),
-                               vis_all(result['80'].cpu(), events_array['80'][0], pred_images[0][0].cpu())])
-                    ).save(path / "result/image_{:010d}.jpg".format(i))
+    pred_images.cpu()
+    for key in event_images.keys():
+        event_images[key].cpu()
 
-    del pred_images
-    del next_images
-    del events_array
-    del event_images
-    del result
+    for j in range(i, i+batch_size):
+        Image.fromarray(np.vstack([vis_all(result['15'][j-i], events_array['15'][j-i], pred_images[j-i][0]),
+                               vis_all(result['50'][j-i], events_array['50'][j-i], pred_images[j-i][0]),
+                               vis_all(result['80'][j-i], events_array['80'][j-i], pred_images[j-i][0])])
+                    ).save(path / "result/image_{:010d}.jpg".format(j))
 
 for key in losses.keys():
     print(key, np.average(losses[key]))
