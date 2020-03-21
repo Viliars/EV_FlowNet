@@ -31,6 +31,7 @@ class MVSEC(torch.utils.data.Dataset):
             y = np.array(events['y'])
             t = np.array(events['t'])
             p = np.array(events['p'])
+            events.close()
             events_array[key].append([x, y, t, p])
 
             event_image = np.zeros((4, 256, 256))
