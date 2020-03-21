@@ -32,6 +32,7 @@ class MVSEC(torch.utils.data.Dataset):
                 y = np.array(events['y'])
                 t = np.array(events['t'])
                 p = np.array(events['p'])
+                events.close()
                 # events_array[key].append([x, y, t, p])
 
                 event_image = np.zeros((4, 256, 256))
@@ -84,6 +85,11 @@ for i in tqdm(range(0, 1000, batch_size)):
             loss = photometric_loss(pred_images, next_images, flow) + 0.5 * smoothness_loss(flow)
             # result[key] = flow.to(cpu)
             losses[key].append(loss.item())
+
+    del pred_images
+    del next_images
+    del event_images
+    del flow
 
     torch.cuda.empty_cache()
 
