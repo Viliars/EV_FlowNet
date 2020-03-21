@@ -58,6 +58,7 @@ class MVSEC(torch.utils.data.Dataset):
 
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+cpu = torch.device('cpu')
 print('cuda:0' if torch.cuda.is_available() else 'cpu')
 model = Model()
 model = model.to(device)
@@ -83,13 +84,10 @@ for i in tqdm(range(0, 1000, batch_size)):
     for key in losses.keys():
         flow = model.forward(event_images[key])
         loss = photometric_loss(pred_images, next_images, flow) + 0.5 * smoothness_loss(flow)
-        result[key] = flow
+        result[key] = flow.to(cpu)
         losses[key].append(loss.item())
 
     pred_images.cpu()
-    for key in result.keys():
-        result[key].cpu()
-
 
     for j in range(i, i+batch_size):
         Image.fromarray(np.vstack([vis_all(result['15'][j-i], events_array['15'][j-i], pred_images[j-i][0]),
