@@ -87,7 +87,7 @@ for i in tqdm(range(0, 1000, batch_size)):
         result[key] = flow.to(cpu)
         losses[key].append(loss.item())
 
-    pred_images.cpu()
+    pred_images = pred_images.to(cpu)
 
     for j in range(i, i+batch_size):
         Image.fromarray(np.vstack([vis_all(result['15'][j-i], events_array['15'][j-i], pred_images[j-i][0]),
