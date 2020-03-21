@@ -70,7 +70,7 @@ losses = {"15": [], "50": [], "80": [], "mvsec": []}
 for i in tqdm(range(0, 1000, batch_size)):
     # result = {"15": [], "50": [], "80": [], "mvsec": []}
 
-    pred_images, next_images, events_array, event_images = mvsec[i:i+batch_size]
+    pred_images, next_images, event_images = mvsec[i:i+batch_size]
 
     pred_images = pred_images.to(device)
     next_images = next_images.to(device)
