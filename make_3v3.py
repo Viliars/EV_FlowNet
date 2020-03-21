@@ -82,9 +82,9 @@ for i in tqdm(range(1000)):
         result[key] = flow[0]
         losses[key].append(loss.item())
 
-    Image.fromarray(np.vstack([vis_all(result['15'], events_array['15'][0], pred_images[0][0]),
-                               vis_all(result['50'], events_array['50'][0], pred_images[0][0]),
-                               vis_all(result['80'], events_array['80'][0], pred_images[0][0])])
+    Image.fromarray(np.vstack([vis_all(result['15'].cpu(), events_array['15'][0].cpu(), pred_images[0][0].cpu()),
+                               vis_all(result['50'].cpu(), events_array['50'][0].cpu(), pred_images[0][0].cpu()),
+                               vis_all(result['80'].cpu(), events_array['80'][0].cpu(), pred_images[0][0].cpu())])
                     ).save(path / "result/image_{:010d}.jpg".format(i))
 
 for key in losses.keys():
