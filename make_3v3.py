@@ -70,15 +70,15 @@ for i in tqdm(range(1000)):
 
     pred_images, next_images, events_array, event_images = mvsec[i]
 
-    pred_images.to(device)
-    next_images.to(device)
+    pred_images = pred_images.to(device)
+    next_images = next_images.to(device)
+
     for key in event_images.keys():
         event_images[key] = event_images[key].to(device)
 
     for key in losses.keys():
-        flow = model.forward(event_images[key][0:1])
-        loss = photometric_loss(pred_images[0:1],
-                                next_images[0:1], flow) + 0.5 * smoothness_loss(flow)
+        flow = model.forward(event_images[key])
+        loss = photometric_loss(pred_images, next_images, flow) + 0.5 * smoothness_loss(flow)
         result[key] = flow[0]
         losses[key].append(loss.item())
 
