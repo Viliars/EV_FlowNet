@@ -87,6 +87,12 @@ for i in tqdm(range(1000)):
                                vis_all(result['80'].cpu(), events_array['80'][0], pred_images[0][0].cpu())])
                     ).save(path / "result/image_{:010d}.jpg".format(i))
 
+    del pred_images
+    del next_images
+    del events_array
+    del event_images
+    del result
+
 for key in losses.keys():
     print(key, np.average(losses[key]))
 
