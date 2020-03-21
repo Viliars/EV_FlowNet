@@ -17,7 +17,7 @@ class MVSEC(torch.utils.data.Dataset):
         self.path = path
 
     def __getitem__(self, idx):
-        events_array = {"15": [], "50": [], "80": [], "mvsec": []}
+        # events_array = {"15": [], "50": [], "80": [], "mvsec": []}
         event_images = {"15": [], "50": [], "80": [], "mvsec": []}
         pred_images = []
         next_images = []
@@ -32,7 +32,7 @@ class MVSEC(torch.utils.data.Dataset):
                 y = np.array(events['y'])
                 t = np.array(events['t'])
                 p = np.array(events['p'])
-                events_array[key].append([x, y, t, p])
+                # events_array[key].append([x, y, t, p])
 
                 event_image = np.zeros((4, 256, 256))
                 for j in range(x.shape[0]):
@@ -48,10 +48,7 @@ class MVSEC(torch.utils.data.Dataset):
         for key in event_images.keys():
             event_images[key] = torch.Tensor(event_images[key])
 
-        return torch.Tensor(pred_images), torch.Tensor(next_images), events_array, event_images
-
-    def __len__(self):
-        return 1000
+        return torch.Tensor(pred_images), torch.Tensor(next_images), event_images
 
     def __len__(self):
         return 1000
@@ -71,7 +68,7 @@ mvsec = MVSEC(path)
 batch_size = 5
 losses = {"15": [], "50": [], "80": [], "mvsec": []}
 for i in tqdm(range(0, 1000, batch_size)):
-    result = {"15": [], "50": [], "80": [], "mvsec": []}
+    # result = {"15": [], "50": [], "80": [], "mvsec": []}
 
     pred_images, next_images, events_array, event_images = mvsec[i:i+batch_size]
 
@@ -82,18 +79,21 @@ for i in tqdm(range(0, 1000, batch_size)):
         event_images[key] = event_images[key].to(device)
 
     for key in losses.keys():
-        flow = model.forward(event_images[key])
-        loss = photometric_loss(pred_images, next_images, flow) + 0.5 * smoothness_loss(flow)
-        result[key] = flow.to(cpu)
-        losses[key].append(loss.item())
+        with torch.no_grad():
+            flow = model.forward(event_images[key])
+            loss = photometric_loss(pred_images, next_images, flow) + 0.5 * smoothness_loss(flow)
+            # result[key] = flow.to(cpu)
+            losses[key].append(loss.item())
 
-    pred_images = pred_images.to(cpu)
+    torch.cuda.empty_cache()
 
-    for j in range(i, i+batch_size):
-        Image.fromarray(np.vstack([vis_all(result['15'][j-i], events_array['15'][j-i], pred_images[j-i][0]),
-                               vis_all(result['50'][j-i], events_array['50'][j-i], pred_images[j-i][0]),
-                               vis_all(result['80'][j-i], events_array['80'][j-i], pred_images[j-i][0])])
-                    ).save(path / "result/image_{:010d}.jpg".format(j))
+    # pred_images = pred_images.to(cpu)
+    #
+    # for j in range(i, i+batch_size):
+    #     Image.fromarray(np.vstack([vis_all(result['15'][j-i], events_array['15'][j-i], pred_images[j-i][0]),
+    #                            vis_all(result['50'][j-i], events_array['50'][j-i], pred_images[j-i][0]),
+    #                            vis_all(result['80'][j-i], events_array['80'][j-i], pred_images[j-i][0])])
+    #                 ).save(path / "result/image_{:010d}.jpg".format(j))
 
 for key in losses.keys():
     print(key, np.average(losses[key]))
