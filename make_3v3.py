@@ -26,7 +26,7 @@ class MVSEC(torch.utils.data.Dataset):
             pred_images.append([np.array(Image.open(self.path / f"images/{i}.png"))])
             next_images.append([np.array(Image.open(self.path / f"images/{i + 1}.png"))])
 
-            for key in events_array.keys():
+            for key in event_images.keys():
                 events = h5py.File(self.path / f"event_images/{key}/{i}to{i + 1}.hdf5", "r")
                 x = np.array(events['x'])
                 y = np.array(events['y'])
