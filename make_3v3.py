@@ -27,7 +27,7 @@ class MVSEC(torch.utils.data.Dataset):
             next_images.append([np.array(Image.open(self.path / f"images/{i + 1}.png"))])
 
             for key in events_array.keys():
-                events = h5py.File(self.path / f"event_images/{key}/{i}to{i + 1}.hdf5")
+                events = h5py.File(self.path / f"event_images/{key}/{i}to{i + 1}.hdf5", "r")
                 x = np.array(events['x'])
                 y = np.array(events['y'])
                 t = np.array(events['t'])
@@ -67,7 +67,7 @@ model.eval()
 
 mvsec = MVSEC(path)
 
-batch_size = 10
+batch_size = 5
 losses = {"15": [], "50": [], "80": [], "mvsec": []}
 for i in tqdm(range(0, 1000, batch_size)):
     result = {"15": [], "50": [], "80": [], "mvsec": []}
