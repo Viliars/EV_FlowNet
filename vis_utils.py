@@ -19,12 +19,17 @@ def vis_flow(_flow):
     flow_rgb = hsv2rgb(hsv)
     return 255 - (flow_rgb * 255).astype(np.uint8)
 
-def vis_events(events, imsize):
-    res = np.zeros(imsize, dtype=np.uint8).ravel()
-    x, y = map(lambda x: x.astype(int), events[:2])
-    i = np.ravel_multi_index([y, x], imsize)
-    np.maximum.at(res, i, np.full_like(x, 255, dtype=np.uint8))
-    return np.tile(res.reshape(imsize)[..., None], (1, 1, 3))
+def vis_events(event_image):
+    event_image_xy = event_image[0] + event_image[1]
+    event_image_xy = np.array(event_image_xy, dtype=np.uint8)
+    event_image_xy[event_image_xy > 0] = 255
+    return np.tile(event_image_xy[..., None], (1, 1, 3))
+
+    # res = np.zeros(imsize, dtype=np.uint8).ravel()
+    # x, y = map(lambda x: x.astype(int), events[:2])
+    # i = np.ravel_multi_index([y, x], imsize)
+    # np.maximum.at(res, i, np.full_like(x, 255, dtype=np.uint8))
+    # return np.tile(res.reshape(imsize)[..., None], (1, 1, 3))
 
 def vis_image(image):
     return np.stack([image, image, image], axis=2).astype(np.uint8)
@@ -32,5 +37,5 @@ def vis_image(image):
 def collage(flow_rgb, events_rgb, image_rgb):
     return np.hstack([flow_rgb, events_rgb, image_rgb])
 
-def vis_all(flow, events, image, imsize=(256, 256)):
-    return collage(vis_flow(flow), vis_events(events, imsize), vis_image(image))
+def vis_all(flow, event_image, image):
+    return collage(vis_flow(flow), vis_events(event_image), vis_image(image))
