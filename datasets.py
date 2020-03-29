@@ -1,6 +1,7 @@
 import torch
 import h5py
 from random import randint
+import numpy as np
 
 class KITTY(torch.utils.data.Dataset):
     def __init__(self, path):
