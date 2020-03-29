@@ -32,9 +32,9 @@ for epoch in range(30):
 
         pred_images, next_images, event_images = sample_batched
 
-        pred_images.to(device)
-        next_images.to(device)
-        event_images.to(device)
+        pred_images = pred_images.to(device)
+        next_images = next_images.to(device)
+        event_images = event_images.to(device)
 
         flow = model.forward(event_images)
         loss = photometric_loss(pred_images, next_images, flow) + 0.5 * smoothness_loss(flow)
