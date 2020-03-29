@@ -19,7 +19,6 @@ model = Model()
 model = model.to(device)
 imsize = 256, 256
 
-print(len(dataset))
 
 model.train()
 
