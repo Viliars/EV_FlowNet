@@ -17,7 +17,7 @@ class KITTY(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         for i in range(92):
-            if idx - self.length[i] > 0:
+            if idx - self.length[i] >= 0:
                 idx -= self.length[i]
             else:
                 file_id = i
