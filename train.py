@@ -5,14 +5,14 @@ from net import Model
 from datasets import KITTY
 from tqdm import tqdm
 from loss import photometric_loss, smoothness_loss
-from torch.utils.tensorboard import SummaryWriter
+#from torch.utils.tensorboard import SummaryWriter
 
 path = Path("/hpcfs/GRAPHICS2/23m_pri/data/")
 
 dataset = KITTY(path)
 dataset_loader = torch.utils.data.DataLoader(dataset, batch_size=16, num_workers=1, pin_memory=True)
 
-writer = SummaryWriter()
+#writer = SummaryWriter()
 
 device = torch.device('cuda:0')
 model = Model()
@@ -44,5 +44,6 @@ for epoch in range(30):
 
         losses.append(loss.item())
 
-    writer.add_scalar('Loss/train', np.average(losses), epoch)
+    print(f"EPOCH Loss = {np.average(losses)}")
+    #writer.add_scalar('Loss/train', np.average(losses), epoch)
 
