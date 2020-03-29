@@ -9,7 +9,7 @@ class KITTY(torch.utils.data.Dataset):
         self.path = path
         self.length = []
         for i in range(92):
-            file = h5py.File(path / "{:010d}".format(i), "r")
+            file = h5py.File(path / "{:010d}.hdf5".format(i), "r")
             self.length.append(file['pred'].shape[0])
             file.close()
         self.len = sum(self.length)
