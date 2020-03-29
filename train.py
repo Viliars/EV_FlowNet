@@ -3,7 +3,7 @@ import torch
 from net import Model
 from datasets import KITTY
 
-path = Path("~/data/")
+path = Path("/hpcfs/GRAPHICS2/23m_pri/data/")
 
 dataset = KITTY(path)
 dataset_loader = torch.utils.data.DataLoader(dataset, batch_size=16, num_workers=1, pin_memory=True)
