@@ -7,9 +7,11 @@ from tqdm import tqdm
 from loss import photometric_loss, smoothness_loss
 from flow_loss import flow_error_dense
 from torch.utils.tensorboard import SummaryWriter
+import paths
 
-kitty_path = Path("")
-mvsec_path = Path("")
+kitty_path = Path(paths.kitty)
+mvsec_path = Path(paths.mvsec)
+models_path = Path(paths.models)
 
 train = KITTY(kitty_path)
 train_loader = torch.utils.data.DataLoader(train, batch_size=16, num_workers=1, pin_memory=True)
@@ -51,11 +53,13 @@ for epoch in range(300):
         train_losses.append(loss.item())
 
     scheduler.step()
-    print(f"EPOCH №{epoch} Loss/train = {np.mean(train_losses)}")
+    print(f"Loss/train = {np.mean(train_losses)}")
     writer.add_scalar('Loss/train', np.mean(train_losses), epoch)
 
     # TEST
     if epoch % 10 == 0 and epoch > 1:
+        torch.save(model.state_dict(), models_path/f"model{epoch}.pth")
+
         model.eval()
 
         test_losses_AEE = []
@@ -65,19 +69,19 @@ for epoch in range(300):
             for i_batch, sample_batched in tqdm(enumerate(test_loader)):
                 event_images, gt_flow = sample_batched
                 event_mask = torch.sum(event_images[:, :2, ...], dim=1)
-                event_images.to(device)
+                event_images = event_images.to(device)
 
                 flow = model.forward(event_images)
 
-                flow.cpu()
+                flow = flow.cpu()
 
                 for i in range(flow.shape[0]):
                     AEE, percent_AEE, _ = flow_error_dense(gt_flow[i], flow[i], event_mask[i])
                     test_losses_AEE.append(AEE)
                     test_losses_percent_AEE.append(percent_AEE)
 
-        print(f"EPOCH №{epoch} Loss/test_AEE = {np.mean(test_losses_AEE)}")
-        print(f"EPOCH №{epoch} Loss/test_percent_AEE = {np.mean(test_losses_percent_AEE)}")
+        print(f"Loss/test_AEE = {np.mean(test_losses_AEE)}")
+        print(f"Loss/test_percent_AEE = {np.mean(test_losses_percent_AEE)}")
 
         writer.add_scalar('Loss/test_AEE', np.mean(test_losses_AEE), epoch)
         writer.add_scalar('Loss/test_percent_AEE', np.mean(test_losses_percent_AEE), epoch)
