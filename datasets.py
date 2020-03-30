@@ -43,3 +43,28 @@ class KITTY(torch.utils.data.Dataset):
 
     def __len__(self):
         return self.len
+
+
+class MVSEC(torch.utils.data.Dataset):
+    def __init__(self, path):
+        super(MVSEC).__init__()
+        self.path = path
+        self.file = h5py.File(path, "r")
+
+    def __getitem__(self, idx):
+        h = randint(0, 4)
+        w = randint(0, 90)
+
+        flow = self.file['flow'][idx][:, h:h + 256, w:w + 256]
+
+        event_image = torch.Tensor(np.stack([
+            self.file['0'][idx][h:h + 256, w:w + 256],
+            self.file['1'][idx][h:h + 256, w:w + 256],
+            self.file['2'][idx][h:h + 256, w:w + 256],
+            self.file['3'][idx][h:h + 256, w:w + 256]
+        ]))
+
+        return event_image, flow
+
+    def __len__(self):
+        return 1398
