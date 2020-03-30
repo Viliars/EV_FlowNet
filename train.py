@@ -29,9 +29,9 @@ imsize = 256, 256
 model.train()
 
 optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-5)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 10, 0.9)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 5, 0.9)
 
-for epoch in range(300):
+for epoch in range(501):
     print(f"------ EPOCH {epoch} ------")
     # TRAIN
     train_losses = []
@@ -59,6 +59,7 @@ for epoch in range(300):
     # TEST
     if epoch % 10 == 0 and epoch > 1:
         torch.save(model.state_dict(), models_path/f"model{epoch}.pth")
+        torch.save(optimizer.state_dict(), models_path / f"optimizer{epoch}.pth")
 
         model.eval()
 
