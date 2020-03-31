@@ -67,4 +67,4 @@ class MVSEC(torch.utils.data.Dataset):
         return event_image, flow
 
     def __len__(self):
-        return 1398
+        return 2203

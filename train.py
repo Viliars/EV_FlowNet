@@ -29,9 +29,9 @@ imsize = 256, 256
 model.train()
 
 optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-5)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 5, 0.9)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 4, 0.8)
 
-for epoch in range(501):
+for epoch in range(151):
     print(f"------ EPOCH {epoch} ------")
     # TRAIN
     train_losses = []
