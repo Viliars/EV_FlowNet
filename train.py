@@ -33,7 +33,7 @@ model.train()
 optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-5)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 4, 0.8)
 
-for epoch in range(251):
+for epoch in range(152):
     print(f"------ EPOCH {epoch} ------")
     # TRAIN
     train_losses = []
