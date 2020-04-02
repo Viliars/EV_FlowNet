@@ -14,9 +14,9 @@ mvsec_path = Path(paths.mvsec)
 models_path = Path(paths.models)
 
 train = KITTY(kitty_path)
-train_loader = torch.utils.data.DataLoader(train, batch_size=16, num_workers=1, pin_memory=True)
+train_loader = torch.utils.data.DataLoader(train, batch_size=16, num_workers=1, shuffle=True, pin_memory=True)
 test = MVSEC(mvsec_path)
-test_loader = torch.utils.data.DataLoader(test, batch_size=16, num_workers=1, pin_memory=True)
+test_loader = torch.utils.data.DataLoader(test, batch_size=16, num_workers=1, shuffle=True, pin_memory=True)
 
 writer = SummaryWriter()
 
@@ -25,6 +25,8 @@ model = Model()
 model = model.to(device)
 imsize = 256, 256
 
+print(f"TrainSize = {len(train)}")
+print(f"TestSize = {len(test)}")
 
 model.train()
 

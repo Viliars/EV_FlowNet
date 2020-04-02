@@ -9,23 +9,29 @@ class KITTY(torch.utils.data.Dataset):
         super(KITTY).__init__()
         self.path = path
         self.length = []
-        for i in range(92):
+        for i in range(93):
             file = h5py.File(path / "{:010d}.hdf5".format(i), "r")
             self.length.append(file['pred'].shape[0])
             file.close()
         self.len = sum(self.length)
 
     def __getitem__(self, idx):
-        for i in range(92):
+        for i in range(93):
             if idx - self.length[i] >= 0:
                 idx -= self.length[i]
             else:
                 file_id = i
                 break
+
         file = h5py.File(self.path / "{:010d}.hdf5".format(file_id), "r")
 
-        h = randint(0, 256)
-        w = randint(0, 1136)
+        if file_id != 92:
+            h = randint(0, 256)
+            w = randint(0, 1136)
+        else:
+            h = randint(0, 4)
+            w = randint(0, 90)
+
 
         pred_image = torch.Tensor(file['pred'][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
         next_image = torch.Tensor(file['next'][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
@@ -67,4 +73,4 @@ class MVSEC(torch.utils.data.Dataset):
         return event_image, flow
 
     def __len__(self):
-        return 2203
+        return self.file['0'].shape[0]
