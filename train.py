@@ -70,7 +70,7 @@ for epoch in range(152):
 
         with torch.no_grad():
             for i_batch, sample_batched in tqdm(enumerate(test_loader)):
-                event_images, gt_flow = sample_batched
+                pred_images, next_images, event_images, gt_flow = sample_batched
                 event_mask = torch.sum(event_images[:, :2, ...], dim=1)
                 event_images = event_images.to(device)
 
