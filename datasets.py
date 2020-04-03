@@ -62,7 +62,8 @@ class MVSEC(torch.utils.data.Dataset):
         w = randint(0, 90)
 
         flow = self.file['flow'][idx][:, h:h + 256, w:w + 256]
-
+        pred_image = torch.Tensor(self.file['pred'][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
+        next_image = torch.Tensor(self.file['next'][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
         event_image = torch.Tensor(np.stack([
             self.file['0'][idx][h:h + 256, w:w + 256],
             self.file['1'][idx][h:h + 256, w:w + 256],
@@ -70,7 +71,7 @@ class MVSEC(torch.utils.data.Dataset):
             self.file['3'][idx][h:h + 256, w:w + 256]
         ]))
 
-        return event_image, flow
+        return pred_image, next_image, event_image, flow
 
     def __len__(self):
         return self.file['0'].shape[0]
