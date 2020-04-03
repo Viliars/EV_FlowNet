@@ -14,9 +14,9 @@ mvsec_path = Path(paths.mvsec)
 models_path = Path(paths.models)
 
 train = MVSEC(kitty_path/"0000000092.hdf5")
-train_loader = torch.utils.data.DataLoader(train, batch_size=16, num_workers=1, shuffle=True, pin_memory=True)
+train_loader = torch.utils.data.DataLoader(train, batch_size=32, num_workers=1, shuffle=True, pin_memory=True)
 test = MVSEC(mvsec_path)
-test_loader = torch.utils.data.DataLoader(test, batch_size=16, num_workers=1, shuffle=True, pin_memory=True)
+test_loader = torch.utils.data.DataLoader(test, batch_size=32, num_workers=1, shuffle=True, pin_memory=True)
 
 writer = SummaryWriter()
 
