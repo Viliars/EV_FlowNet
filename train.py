@@ -13,7 +13,7 @@ kitty_path = Path(paths.kitty)
 mvsec_path = Path(paths.mvsec)
 models_path = Path(paths.models)
 
-train = KITTY(kitty_path)
+train = MVSEC(kitty_path/"0000000092.hdf5")
 train_loader = torch.utils.data.DataLoader(train, batch_size=16, num_workers=1, shuffle=True, pin_memory=True)
 test = MVSEC(mvsec_path)
 test_loader = torch.utils.data.DataLoader(test, batch_size=16, num_workers=1, shuffle=True, pin_memory=True)
