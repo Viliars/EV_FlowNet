@@ -19,7 +19,7 @@ def flow_error_dense(flow_gt, flow_pred, event_img):
     pred_masked = flow_pred[:, total_mask]
 
     # Average endpoint error.
-    EE = np.linalg.norm(gt_masked - pred_masked, axis=-1)
+    EE = np.linalg.norm(gt_masked - pred_masked, axis=0)
     n_points = EE.shape[0]
     AEE = np.mean(EE)
 
