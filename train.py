@@ -13,7 +13,7 @@ kitty_path = Path(paths.kitty)
 mvsec_path = Path(paths.mvsec)
 models_path = Path(paths.models)
 
-train = MVSEC(kitty_path/"0000000092.hdf5")
+train = KITTY(kitty_path)
 train_loader = torch.utils.data.DataLoader(train, batch_size=20, num_workers=1, shuffle=True, pin_memory=True)
 test = MVSEC(mvsec_path)
 test_loader = torch.utils.data.DataLoader(test, batch_size=20, num_workers=1, shuffle=True, pin_memory=True)
@@ -33,7 +33,7 @@ model.train()
 optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-5)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 4, 0.8)
 
-for epoch in range(1001):
+for epoch in range(151):
     print(f"------ EPOCH {epoch} ------")
     # TRAIN
     train_losses = []
