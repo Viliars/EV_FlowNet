@@ -30,7 +30,7 @@ print(f"TestSize = {len(test)}")
 
 model.train()
 
-optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-5)
+optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-4)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 4, 0.8)
 
 for epoch in range(151):
