@@ -9,10 +9,11 @@ class KITTY(torch.utils.data.Dataset):
         super(KITTY).__init__()
         self.path = path
         self.length = []
+        self.files = []
         for i in range(93):
             file = h5py.File(path / "{:010d}.hdf5".format(i), "r")
             self.length.append(file['pred'].shape[0])
-            file.close()
+            self.files.append(file)
         self.len = sum(self.length)
 
     def __getitem__(self, idx):
@@ -23,8 +24,6 @@ class KITTY(torch.utils.data.Dataset):
                 file_id = i
                 break
 
-        file = h5py.File(self.path / "{:010d}.hdf5".format(file_id), "r")
-
         if file_id != 92:
             h = randint(0, 256)
             w = randint(0, 1136)
@@ -33,17 +32,15 @@ class KITTY(torch.utils.data.Dataset):
             w = randint(0, 90)
 
 
-        pred_image = torch.Tensor(file['pred'][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
-        next_image = torch.Tensor(file['next'][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
+        pred_image = torch.Tensor(self.files[file_id]['pred'][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
+        next_image = torch.Tensor(self.files[file_id]['next'][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
 
         event_image = torch.Tensor(np.stack([
-            file['0'][idx][h:h + 256, w:w + 256],
-            file['1'][idx][h:h + 256, w:w + 256],
-            file['2'][idx][h:h + 256, w:w + 256],
-            file['3'][idx][h:h + 256, w:w + 256]
+            self.files[file_id]['0'][idx][h:h + 256, w:w + 256],
+            self.files[file_id]['1'][idx][h:h + 256, w:w + 256],
+            self.files[file_id]['2'][idx][h:h + 256, w:w + 256],
+            self.files[file_id]['3'][idx][h:h + 256, w:w + 256]
         ]))
-
-        file.close()
 
         return pred_image, next_image, event_image
 
