@@ -2,21 +2,31 @@ from pathlib import Path
 import torch
 import numpy as np
 from net import Model
-from datasets import KITTY, MVSEC
+from datasets import KITTY, MVSEC, RAW
 from tqdm import tqdm
 from loss import photometric_loss, smoothness_loss
 from flow_loss import flow_error_dense
 from torch.utils.tensorboard import SummaryWriter
+import random
 import paths
 
-kitty_path = Path(paths.kitty)
-mvsec_path = Path(paths.mvsec)
+random.seed(0)
+np.random.seed(0)
+torch.manual_seed(0)
+torch.cuda.manual_seed(0)
+torch.backends.cudnn.deterministic = True
+
+data_path = Path(paths.data)
 models_path = Path(paths.models)
 
-train = KITTY(kitty_path)
+train = KITTY(data_path, with_mvsec=False)
 train_loader = torch.utils.data.DataLoader(train, batch_size=20, num_workers=1, shuffle=True, pin_memory=True)
-test = MVSEC(mvsec_path)
-test_loader = torch.utils.data.DataLoader(test, batch_size=20, num_workers=1, shuffle=True, pin_memory=True)
+raw1 = RAW(data_path/"raw1.hdf5")
+raw1_loader = torch.utils.data.DataLoader(raw1, batch_size=20, num_workers=1, pin_memory=True)
+raw2 = RAW(data_path/"raw2.hdf5")
+raw2_loader = torch.utils.data.DataLoader(raw2, batch_size=20, num_workers=1, pin_memory=True)
+raw3 = RAW(data_path/"raw3.hdf5")
+raw3_loader = torch.utils.data.DataLoader(raw3, batch_size=20, num_workers=1, pin_memory=True)
 
 writer = SummaryWriter()
 
@@ -26,21 +36,23 @@ model = model.to(device)
 imsize = 256, 256
 
 print(f"TrainSize = {len(train)}")
-print(f"TestSize = {len(test)}")
+print(f"Raw1Size = {len(raw1)}")
+print(f"Raw2Size = {len(raw2)}")
+print(f"Raw3Size = {len(raw3)}")
+
+optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-5)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 4, 0.8)
 
 model.train()
 
-optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-4)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 4, 0.8)
-
-for epoch in range(151):
+for epoch in range(2):
     print(f"------ EPOCH {epoch} ------")
-    # TRAIN
+# -------------------------- TRAIN --------------------------
     train_losses = []
     for i_batch, sample_batched in tqdm(enumerate(train_loader)):
         optimizer.zero_grad()
 
-        pred_images, next_images, event_images = sample_batched
+        pred_images, next_images, event_images, gt_flow = sample_batched
 
         pred_images = pred_images.to(device)
         next_images = next_images.to(device)
@@ -58,35 +70,78 @@ for epoch in range(151):
     print(f"Loss/train = {np.mean(train_losses)}")
     writer.add_scalar('Loss/train', np.mean(train_losses), epoch)
 
-    # TEST
-    if epoch % 10 == 0 and epoch > 1:
-        torch.save(model.state_dict(), models_path/f"model{epoch}.pth")
-        torch.save(optimizer.state_dict(), models_path / f"optimizer{epoch}.pth")
+    model.eval()
+# -------------------------- RAW1 ---------------------------
 
-        model.eval()
+    raw1_AEE = []
+    raw1_percent = []
 
-        test_losses_AEE = []
-        test_losses_percent_AEE = []
+    with torch.no_grad():
+        for i_batch, sample_batched in tqdm(enumerate(raw1_loader)):
+            event_images, gt_flow = sample_batched
+            event_mask = torch.sum(event_images[:, :2, ...], dim=1)
+            event_images = event_images.to(device)
 
-        with torch.no_grad():
-            for i_batch, sample_batched in tqdm(enumerate(test_loader)):
-                pred_images, next_images, event_images, gt_flow = sample_batched
-                event_mask = torch.sum(event_images[:, :2, ...], dim=1)
-                event_images = event_images.to(device)
+            flow = model.forward(event_images)
 
-                flow = model.forward(event_images)
+            flow = flow.cpu()
 
-                flow = flow.cpu()
+            for i in range(flow.shape[0]):
+                AEE, percent_AEE, _ = flow_error_dense(gt_flow[i], flow[i], event_mask[i])
+                raw1_AEE.append(AEE)
+                raw1_percent.append(percent_AEE)
+    
+    print(f"Raw1/AEE = {np.mean(raw1_AEE)}")
+    print(f"Raw1/percent = {np.mean(raw1_percent)}")
+    
+    # -------------------------- RAW2 ---------------------------
 
-                for i in range(flow.shape[0]):
-                    AEE, percent_AEE, _ = flow_error_dense(gt_flow[i], flow[i], event_mask[i])
-                    test_losses_AEE.append(AEE)
-                    test_losses_percent_AEE.append(percent_AEE)
+    raw2_AEE = []
+    raw2_percent = []
 
-        print(f"Loss/test_AEE = {np.mean(test_losses_AEE)}")
-        print(f"Loss/test_percent_AEE = {np.mean(test_losses_percent_AEE)}")
+    with torch.no_grad():
+        for i_batch, sample_batched in tqdm(enumerate(raw2_loader)):
+            event_images, gt_flow = sample_batched
+            event_mask = torch.sum(event_images[:, :2, ...], dim=1)
+            event_images = event_images.to(device)
 
-        writer.add_scalar('Loss/test_AEE', np.mean(test_losses_AEE), epoch)
-        writer.add_scalar('Loss/test_percent_AEE', np.mean(test_losses_percent_AEE), epoch)
+            flow = model.forward(event_images)
 
-        model.train()
+            flow = flow.cpu()
+
+            for i in range(flow.shape[0]):
+                AEE, percent_AEE, _ = flow_error_dense(gt_flow[i], flow[i], event_mask[i])
+                raw2_AEE.append(AEE)
+                raw2_percent.append(percent_AEE)
+    
+    print(f"Raw2/AEE = {np.mean(raw2_AEE)}")
+    print(f"Raw2/percent = {np.mean(raw2_percent)}")
+    
+    # -------------------------- RAW3 ---------------------------
+    
+    raw3_AEE = []
+    raw3_percent = []
+
+    with torch.no_grad():
+        for i_batch, sample_batched in tqdm(enumerate(raw3_loader)):
+            event_images, gt_flow = sample_batched
+            event_mask = torch.sum(event_images[:, :2, ...], dim=1)
+            event_images = event_images.to(device)
+
+            flow = model.forward(event_images)
+
+            flow = flow.cpu()
+
+            for i in range(flow.shape[0]):
+                AEE, percent_AEE, _ = flow_error_dense(gt_flow[i], flow[i], event_mask[i])
+                raw3_AEE.append(AEE)
+                raw3_percent.append(percent_AEE)
+    
+    print(f"Raw3/AEE = {np.mean(raw3_AEE)}")
+    print(f"Raw3/percent = {np.mean(raw3_percent)}")
+    
+    print(f"Test/AEE = {np.mean([np.mean(raw1_AEE), np.mean(raw2_AEE), np.mean(raw3_AEE)])}")
+    print(f"Test/percent = {np.mean([np.mean(raw1_percent), np.mean(raw2_percent), np.mean(raw3_percent)])}")
+
+    model.train()
+
