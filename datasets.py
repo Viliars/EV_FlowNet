@@ -29,13 +29,8 @@ class KITTY(torch.utils.data.Dataset):
                 file_id = i
                 break
 
-        if file_id != self.last - 1:
-            h = randint(0, 256)
-            w = randint(0, 1136)
-        else:
-            h = randint(0, 4)
-            w = randint(0, 90)
-
+        h = randint(0, 256)
+        w = randint(0, 1136)
 
         pred_image = torch.Tensor(self.files[file_id]['pred'][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
         next_image = torch.Tensor(self.files[file_id]['next'][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
