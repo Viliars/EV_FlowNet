@@ -45,7 +45,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 4, 0.8)
 
 model.train()
 
-for epoch in range(2):
+for epoch in range(100):
     print(f"------ EPOCH {epoch} ------")
 # -------------------------- TRAIN --------------------------
     train_losses = []
@@ -93,6 +93,8 @@ for epoch in range(2):
     
     print(f"Raw1/AEE = {np.mean(raw1_AEE)}")
     print(f"Raw1/percent = {np.mean(raw1_percent)}")
+    writer.add_scalar('Raw1/AEE', np.mean(raw1_AEE), epoch)
+    writer.add_scalar('Raw1/percent', np.mean(raw1_percent), epoch)
     
     # -------------------------- RAW2 ---------------------------
 
@@ -116,6 +118,8 @@ for epoch in range(2):
     
     print(f"Raw2/AEE = {np.mean(raw2_AEE)}")
     print(f"Raw2/percent = {np.mean(raw2_percent)}")
+    writer.add_scalar('Raw2/AEE', np.mean(raw2_AEE), epoch)
+    writer.add_scalar('Raw2/percent', np.mean(raw2_percent), epoch)
     
     # -------------------------- RAW3 ---------------------------
     
@@ -139,9 +143,13 @@ for epoch in range(2):
     
     print(f"Raw3/AEE = {np.mean(raw3_AEE)}")
     print(f"Raw3/percent = {np.mean(raw3_percent)}")
+    writer.add_scalar('Raw3/AEE', np.mean(raw3_AEE), epoch)
+    writer.add_scalar('Raw3/percent', np.mean(raw3_percent), epoch)
     
     print(f"Test/AEE = {np.mean([np.mean(raw1_AEE), np.mean(raw2_AEE), np.mean(raw3_AEE)])}")
     print(f"Test/percent = {np.mean([np.mean(raw1_percent), np.mean(raw2_percent), np.mean(raw3_percent)])}")
+    writer.add_scalar('Test/AEE', np.mean([np.mean(raw1_AEE), np.mean(raw2_AEE), np.mean(raw3_AEE)]), epoch)
+    writer.add_scalar('Test/percent', np.mean([np.mean(raw1_percent), np.mean(raw2_percent), np.mean(raw3_percent)]), epoch)
 
     model.train()
 
