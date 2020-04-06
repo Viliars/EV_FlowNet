@@ -8,21 +8,14 @@ class KITTY(torch.utils.data.Dataset):
     def __init__(self, path, with_mvsec=False):
         super(KITTY).__init__()
         self.path = path
+        self.file = h5py.File(path, "r")
         self.length = []
-        self.files = []
-        for i in range(92):
-            file = h5py.File(path / "{:010d}.hdf5".format(i), "r")
-            self.length.append(file['pred'].shape[0])
-            self.files.append(file)
-        if with_mvsec:
-            file = h5py.File(path / "indoor1.hdf5", "r")
-            self.length.append(file['pred'].shape[0])
-            self.files.append(file)
+        for i in range(132):
+            self.length.append(self.file[f"pred_{i}"].shape[0])
         self.len = sum(self.length)
-        self.last = len(self.files)
 
     def __getitem__(self, idx):
-        for i in range(self.last):
+        for i in range(132):
             if idx - self.length[i] >= 0:
                 idx -= self.length[i]
             else:
@@ -32,14 +25,14 @@ class KITTY(torch.utils.data.Dataset):
         h = randint(0, 256)
         w = randint(0, 1136)
 
-        pred_image = torch.Tensor(self.files[file_id]['pred'][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
-        next_image = torch.Tensor(self.files[file_id]['next'][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
+        pred_image = torch.Tensor(self.file[f"pred_{file_id}"][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
+        next_image = torch.Tensor(self.file[f"next_{file_id}"][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
 
         event_image = torch.Tensor(np.stack([
-            self.files[file_id]['0'][idx][h:h + 256, w:w + 256],
-            self.files[file_id]['1'][idx][h:h + 256, w:w + 256],
-            self.files[file_id]['2'][idx][h:h + 256, w:w + 256],
-            self.files[file_id]['3'][idx][h:h + 256, w:w + 256]
+            self.files[file_id][f"0_{file_id}"][idx][h:h + 256, w:w + 256],
+            self.files[file_id][f"1_{file_id}"][idx][h:h + 256, w:w + 256],
+            self.files[file_id][f"2_{file_id}"][idx][h:h + 256, w:w + 256],
+            self.files[file_id][f"3_{file_id}"][idx][h:h + 256, w:w + 256]
         ]))
 
         return pred_image, next_image, event_image, 0

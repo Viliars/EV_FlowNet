@@ -52,7 +52,7 @@ for epoch in range(100):
     for i_batch, sample_batched in tqdm(enumerate(train_loader)):
         optimizer.zero_grad()
 
-        pred_images, next_images, event_images, gt_flow = sample_batched
+        pred_images, next_images, event_images, _ = sample_batched
 
         pred_images = pred_images.to(device)
         next_images = next_images.to(device)
