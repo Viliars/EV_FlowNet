@@ -38,7 +38,7 @@ class KITTY(torch.utils.data.Dataset):
         return pred_image, next_image, event_image, 0
 
     def __len__(self):
-        return self.len
+        return 8000
 
 
 class MVSEC(torch.utils.data.Dataset):
