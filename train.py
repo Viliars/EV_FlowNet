@@ -40,7 +40,7 @@ print(f"Raw1Size = {len(raw1)}")
 print(f"Raw2Size = {len(raw2)}")
 print(f"Raw3Size = {len(raw3)}")
 
-optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-5)
+optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-4)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 4, 0.8)
 
 model.train()
