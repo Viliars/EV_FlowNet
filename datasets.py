@@ -10,12 +10,12 @@ class KITTY(torch.utils.data.Dataset):
         self.path = path
         self.file = h5py.File(path, "r")
         self.length = []
-        for i in range(132):
+        for i in range(122):
             self.length.append(self.file[f"pred_{i}"].shape[0])
         self.len = sum(self.length)
 
     def __getitem__(self, idx):
-        for i in range(132):
+        for i in range(122):
             if idx - self.length[i] >= 0:
                 idx -= self.length[i]
             else:
