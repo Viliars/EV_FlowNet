@@ -29,10 +29,10 @@ class KITTY(torch.utils.data.Dataset):
         next_image = torch.Tensor(self.file[f"next_{file_id}"][idx][h:h + 256, w:w + 256].reshape(1, 256, 256))
 
         event_image = torch.Tensor(np.stack([
-            self.files[file_id][f"0_{file_id}"][idx][h:h + 256, w:w + 256],
-            self.files[file_id][f"1_{file_id}"][idx][h:h + 256, w:w + 256],
-            self.files[file_id][f"2_{file_id}"][idx][h:h + 256, w:w + 256],
-            self.files[file_id][f"3_{file_id}"][idx][h:h + 256, w:w + 256]
+            self.file[file_id][f"0_{file_id}"][idx][h:h + 256, w:w + 256],
+            self.file[file_id][f"1_{file_id}"][idx][h:h + 256, w:w + 256],
+            self.file[file_id][f"2_{file_id}"][idx][h:h + 256, w:w + 256],
+            self.file[file_id][f"3_{file_id}"][idx][h:h + 256, w:w + 256]
         ]))
 
         return pred_image, next_image, event_image, 0
