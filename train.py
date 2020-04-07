@@ -36,6 +36,7 @@ model = model.to(device)
 imsize = 256, 256
 
 print(f"TrainSize = {len(train)}")
+print(f"KITTYSize = {train.len}")
 print(f"Raw1Size = {len(raw1)}")
 print(f"Raw2Size = {len(raw2)}")
 print(f"Raw3Size = {len(raw3)}")
