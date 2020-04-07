@@ -152,10 +152,8 @@ for epoch in range(100):
     writer.add_scalar('Test/AEE', np.mean([np.mean(raw1_AEE), np.mean(raw2_AEE), np.mean(raw3_AEE)]), epoch)
     writer.add_scalar('Test/percent', np.mean([np.mean(raw1_percent), np.mean(raw2_percent), np.mean(raw3_percent)]), epoch)
 
-
-
     model.train()
 
 writer.close()
-torch.save(model.state_dict(), models_path/"15.pth")
+torch.save(model.state_dict(), models_path/"30.pth")
 
