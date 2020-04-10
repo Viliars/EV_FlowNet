@@ -19,7 +19,7 @@ torch.backends.cudnn.deterministic = True
 data_path = Path(paths.data)
 models_path = Path(paths.models)
 
-train = MVSEC(data_path/"indoor1.hdf5")
+train = KITTY(data_path, with_mvsec=True)
 train_loader = torch.utils.data.DataLoader(train, batch_size=20, num_workers=1, shuffle=True, pin_memory=True)
 raw1 = RAW(data_path/"raw1.hdf5")
 raw1_loader = torch.utils.data.DataLoader(raw1, batch_size=20, num_workers=1, pin_memory=True)
