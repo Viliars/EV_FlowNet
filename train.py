@@ -19,9 +19,9 @@ torch.backends.cudnn.deterministic = True
 data_path = Path(paths.data)
 models_path = Path(paths.models)
 
-train = KITTY(data_path/"kitty.hdf5", with_mvsec=False)
+train = MVSEC(data_path/"raw1_train.hdf5")
 train_loader = torch.utils.data.DataLoader(train, batch_size=20, num_workers=1, shuffle=True, pin_memory=True)
-raw1 = RAW(data_path/"raw1.hdf5")
+raw1 = MVSEC(data_path/"raw1.hdf5")
 raw1_loader = torch.utils.data.DataLoader(raw1, batch_size=20, num_workers=1, pin_memory=True)
 raw2 = RAW(data_path/"raw2.hdf5")
 raw2_loader = torch.utils.data.DataLoader(raw2, batch_size=20, num_workers=1, pin_memory=True)
@@ -155,5 +155,5 @@ for epoch in range(100):
     model.train()
 
 writer.close()
-torch.save(model.state_dict(), models_path/"60.pth")
+torch.save(model.state_dict(), models_path/"only_raw1.pth")
 
