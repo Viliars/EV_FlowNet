@@ -45,7 +45,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 4, 0.8)
 
 model.train()
 
-for epoch in range(100):
+for epoch in range(200):
     print(f"------ EPOCH {epoch} ------")
 # -------------------------- TRAIN --------------------------
     train_losses = []
