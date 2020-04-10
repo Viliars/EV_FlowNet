@@ -154,5 +154,5 @@ for epoch in range(200):
     model.train()
 
 writer.close()
-torch.save(model.state_dict(), models_path/"only_raw1.pth")
+torch.save(model.state_dict(), models_path/"only_indoor1.pth")
 
