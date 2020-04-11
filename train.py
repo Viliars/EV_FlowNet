@@ -19,13 +19,13 @@ torch.backends.cudnn.deterministic = True
 data_path = Path(paths.data)
 models_path = Path(paths.models)
 
-train = KITTY(data_path, with_mvsec=True)
+train = KITTY(data_path)
 train_loader = torch.utils.data.DataLoader(train, batch_size=20, num_workers=1, shuffle=True, pin_memory=True)
-raw1 = RAW(data_path/"raw1.hdf5")
+raw1 = MVSEC(data_path/"indoor1.hdf5")
 raw1_loader = torch.utils.data.DataLoader(raw1, batch_size=20, num_workers=1, pin_memory=True)
-raw2 = RAW(data_path/"raw2.hdf5")
+raw2 = MVSEC(data_path/"indoor2.hdf5")
 raw2_loader = torch.utils.data.DataLoader(raw2, batch_size=20, num_workers=1, pin_memory=True)
-raw3 = RAW(data_path/"raw3.hdf5")
+raw3 = MVSEC(data_path/"indoor3.hdf5")
 raw3_loader = torch.utils.data.DataLoader(raw3, batch_size=20, num_workers=1, pin_memory=True)
 
 writer = SummaryWriter()
@@ -45,7 +45,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 4, 0.8)
 
 model.train()
 
-for epoch in range(200):
+for epoch in range(100):
     print(f"------ EPOCH {epoch} ------")
 # -------------------------- TRAIN --------------------------
     train_losses = []
@@ -154,5 +154,5 @@ for epoch in range(200):
     model.train()
 
 writer.close()
-torch.save(model.state_dict(), models_path/"only_indoor1.pth")
+torch.save(model.state_dict(), models_path/"only_kitty_with_rotation.pth")
 
