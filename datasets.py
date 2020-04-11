@@ -6,10 +6,9 @@ from torchvision.transforms import functional as F
 from PIL import Image
 
 class KITTY(torch.utils.data.Dataset):
-    def __init__(self, path, max_size, with_mvsec=False):
+    def __init__(self, path, max_size=None, with_mvsec=False):
         super(KITTY).__init__()
         self.path = path
-        self.max_size = max_size
         self.file = h5py.File(path/"kitty.hdf5", "r")
         self.length = []
         self.with_mvsec = with_mvsec
@@ -18,6 +17,11 @@ class KITTY(torch.utils.data.Dataset):
         self.len = sum(self.length)
         if self.with_mvsec:
             self.mvsec = h5py.File(path/"indoor1.hdf5", "r")
+
+        if max_size is not None:
+            self.max_size = max_size
+        else:
+            self.max_size = self.len
 
 
     def __getitem__(self, idx):
