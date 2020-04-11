@@ -12,10 +12,11 @@ class KITTY(torch.utils.data.Dataset):
         self.max_size = max_size
         self.file = h5py.File(path/"kitty.hdf5", "r")
         self.length = []
+        self.with_mvsec = with_mvsec
         for i in range(128):
             self.length.append(self.file[f"pred_{i}"].shape[0])
         self.len = sum(self.length)
-        if with_mvsec:
+        if self.with_mvsec:
             self.mvsec = h5py.File(path/"indoor1.hdf5", "r")
 
 
