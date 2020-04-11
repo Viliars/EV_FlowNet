@@ -19,7 +19,7 @@ torch.backends.cudnn.deterministic = True
 data_path = Path(paths.data)
 models_path = Path(paths.models)
 
-train = KITTY(data_path)
+train = KITTY(data_path, max_size=6000)
 train_loader = torch.utils.data.DataLoader(train, batch_size=20, num_workers=1, shuffle=True, pin_memory=True)
 raw1 = MVSEC(data_path/"indoor1.hdf5")
 raw1_loader = torch.utils.data.DataLoader(raw1, batch_size=20, num_workers=1, pin_memory=True)
@@ -40,12 +40,12 @@ print(f"Raw1Size = {len(raw1)}")
 print(f"Raw2Size = {len(raw2)}")
 print(f"Raw3Size = {len(raw3)}")
 
-optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-4)
+optimizer = torch.optim.Adam(model.parameters(), lr=1.0e-5)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 4, 0.8)
 
 model.train()
 
-for epoch in range(100):
+for epoch in range(50):
     print(f"------ EPOCH {epoch} ------")
 # -------------------------- TRAIN --------------------------
     train_losses = []
@@ -78,7 +78,7 @@ for epoch in range(100):
 
     with torch.no_grad():
         for i_batch, sample_batched in tqdm(enumerate(raw1_loader)):
-            event_images, gt_flow = sample_batched
+            pred_images, next_images, event_images, gt_flow = sample_batched
             event_mask = torch.sum(event_images[:, :2, ...], dim=1)
             event_images = event_images.to(device)
 
@@ -103,7 +103,7 @@ for epoch in range(100):
 
     with torch.no_grad():
         for i_batch, sample_batched in tqdm(enumerate(raw2_loader)):
-            event_images, gt_flow = sample_batched
+            pred_images, next_images, event_images, gt_flow = sample_batched
             event_mask = torch.sum(event_images[:, :2, ...], dim=1)
             event_images = event_images.to(device)
 
@@ -128,7 +128,7 @@ for epoch in range(100):
 
     with torch.no_grad():
         for i_batch, sample_batched in tqdm(enumerate(raw3_loader)):
-            event_images, gt_flow = sample_batched
+            pred_images, next_images, event_images, gt_flow = sample_batched
             event_mask = torch.sum(event_images[:, :2, ...], dim=1)
             event_images = event_images.to(device)
 
